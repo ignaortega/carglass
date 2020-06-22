@@ -1,30 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MovieRentals.Movies;
+using System;
 
 namespace MovieRentals
 {
     public class Rental
     {
-        private Movie movie;
+        public Movie Movie { get; private set; }
         private int daysRented;
 
         public Rental(Movie movie, int daysRented)
         {
-            this.movie = movie;
+            if (movie == null)
+            {
+                throw new ArgumentException("The movie is required");
+            }
+
+            if (daysRented < 1)
+            {
+                throw new ArgumentException("Days rented must be positive.");
+            }
+
+            this.Movie = movie;
             this.daysRented = daysRented;
         }
 
-        public int GetDaysRented()
+        public double GetRentalPrice()
         {
-            return daysRented;
+            return this.Movie.GetRentalPrice(this.daysRented);
         }
 
-        public Movie GetMovie()
+        public int GetFrecuentRentalPoints()
         {
-            return movie;
+            return this.Movie.GetFrecuentRentalPoints(this.daysRented);
         }
     }
 }

@@ -1,74 +1,52 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MovieRentals
 {
     public class Customer
     {
-        private string name;
-        private ArrayList rentals = new ArrayList();
+        public string Name { get; private set; }
+        private IList<Rental> rentals;
 
         public Customer(string name)
         {
-            this.name = name;
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("The name is required");
+            }
+
+            this.Name = name;
+            this.rentals = new List<Rental>();
         }
 
-        public void AddRental(Rental arg)
+        public void AddRental(Rental rental)
         {
-            rentals.Add(arg);
+            this.rentals.Add(rental);
         }
 
-        public string Statement()
+        public string GetRentalStatement()
         {
             double totalAmount = 0;
             int frequentRenterPoints = 0;
 
-            string result = "Rental record for " + name + "\n";
-            for (int i = 0; i < rentals.Count; i++)
-            {
-                Rental each = (Rental)rentals[i];
-                double
-                thisAmount = 0;
+            StringBuilder stringBuilder = new StringBuilder();
 
-                switch
-                (each.GetMovie().GetPriceCode())
-                {
-                    case
-                    Movie.REGULAR:
-                        thisAmount += 2;
-                        if (each.GetDaysRented() > 2)
-                        {
-                            thisAmount += (each.GetDaysRented() - 2) * 1.5;
-                        }
-                        break;
-                    case
-                    Movie.NEW_RELEASE:
-                        thisAmount += each.GetDaysRented() * 3;
-                        break;
-                    case
-                    Movie.CHILDRENS:
-                        thisAmount += 1.5;
-                        if (each.GetDaysRented() > 3)
-                        {
-                            thisAmount += (each.GetDaysRented() - 3) * 1.5;
-                        }
-                        break;
-                }
-                frequentRenterPoints++;
-                if ((each.GetMovie().GetPriceCode() == Movie.NEW_RELEASE) && (each.GetDaysRented() > 1))
-                {
-                    frequentRenterPoints++;
-                }
-                result += "\t" + each.GetMovie().GetTitle() + "\t" + thisAmount.ToString() + "\n"; totalAmount += thisAmount;
+            stringBuilder.AppendLine(string.Format("Rental record for {0}", this.Name));
+
+            foreach (Rental rental in this.rentals)
+            {
+                double rentalPrice = rental.GetRentalPrice();
+                totalAmount += rentalPrice;
+                frequentRenterPoints += rental.GetFrecuentRentalPoints();
+
+                stringBuilder.AppendLine(string.Format("\t{0}\t{1}", rental.Movie.Title, rentalPrice));
             }
-            result += "Amount owed is " + totalAmount.ToString() + "\n";
-            result += "You earned " + frequentRenterPoints.ToString()
-                + " frequent renter points.";
-            return result;
+
+            stringBuilder.AppendLine(string.Format("Amount owed is {0}", totalAmount));
+            stringBuilder.AppendLine(string.Format("You earned {0} frequent renter points.", frequentRenterPoints));
+
+            return stringBuilder.ToString();
         }
     }
 }
